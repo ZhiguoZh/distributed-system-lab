@@ -24,6 +24,27 @@ type ExampleReply struct {
 
 // Add your RPC definitions here.
 
+type GetTaskArgs struct {
+	WorkerId int
+}
+
+type GetTaskReply struct {
+	Msg string
+	TaskId int
+	Type string
+	NReduce int
+	Filelist []string
+}
+
+type CompleteArgs struct {
+	WorkerId int
+	TaskId int
+	TaskType string
+	Results []string
+}
+
+type CompleteReply struct {
+}
 
 // Cook up a unique-ish UNIX-domain socket name
 // in /var/tmp, for the master.

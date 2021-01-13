@@ -4,6 +4,8 @@ import "fmt"
 import "log"
 import "net/rpc"
 import "hash/fnv"
+import "os"
+import "time"
 
 
 //
@@ -33,9 +35,29 @@ func Worker(mapf func(string, string) []KeyValue,
 
 	// Your worker implementation here.
 
+	worker_id := os.Getpid()
+
+	task := Task{}
+	nReduce := 0
+
+	for i := 0; i < 20; i += 1{
+		AskForTask(worker_id, &task, &nReduce)
+		//TODO: AskForTask should return a task for later process
+		//Process
+		//Notify complete
+		// Test: Complete 12s later
+		//time.Sleep(12 * time.Second)
+		NotifyComplete(worker_id, task.Tid, task.Type, []string{"mr-2-4", "mr-3-5", "mr-10-5"})
+	}
+
 	// uncomment to send the Example RPC to the master.
 	// CallExample()
+	// Test: Complete immediately
+	//NotifyComplete(worker_id, []string{"mr-2-4", "mr-3-5", "mr-10-5"})
 
+	// Test: Complete 12s later
+	//time.Sleep(12 * time.Second)
+	//NotifyComplete(worker_id, []string{"mr-2-4", "mr-3-5", "mr-10-5"})
 }
 
 //
@@ -59,6 +81,34 @@ func CallExample() {
 
 	// reply.Y should be 100.
 	fmt.Printf("reply.Y %v\n", reply.Y)
+}
+
+func AskForTask(worker_id int, task *Task, nReduce *int) {
+	args := GetTaskArgs{worker_id}
+	reply := GetTaskReply{}
+
+	for {
+		if call("Master.AssignTask", &args, &reply) == false {
+			os.Exit(1)
+		}
+		if (reply.Msg == "Task") {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
+
+	task.Tid = reply.TaskId
+	task.Type = reply.Type
+	task.Files = reply.Filelist
+
+	*nReduce = reply.NReduce
+}
+
+func NotifyComplete(worker_id int, task_id int, task_type string, results []string) {
+	args := CompleteArgs{worker_id, task_id, task_type, results}
+	if call("Master.WorkerComplete", &args, nil) == false {
+		os.Exit(1)
+	}
 }
 
 //
