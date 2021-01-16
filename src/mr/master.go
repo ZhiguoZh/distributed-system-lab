@@ -61,7 +61,7 @@ func (m *Master) Print() {
 func (m *Master) AssignTask(args *GetTaskArgs, reply *GetTaskReply) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	fmt.Println(args.WorkerId)
+	//fmt.Println(args.WorkerId)
 
 	if len(m.Unstarted_tasks) == 0 {
 		reply.Msg = "No task"
@@ -91,9 +91,9 @@ func (m *Master) AssignTask(args *GetTaskArgs, reply *GetTaskReply) error {
 		m.mu.Unlock()
 	}(m, args.WorkerId)
 
-	fmt.Println("After assign task")
-	m.Print()
-	fmt.Println("......")
+	//fmt.Println("After assign task")
+	//m.Print()
+	//fmt.Println("......")
 	return nil
 }
 
@@ -108,9 +108,9 @@ func (m *Master) WorkerComplete(args *CompleteArgs, reply *CompleteReply) error 
 		delete(m.Wip_tasks, worker_id)
 		if m.Phase == "Map" {
 			for _,f := range(args.Results) {
-				fmt.Println(f)
+				//fmt.Println(f)
 				reduce_id,err := strconv.Atoi(strings.Split(f, "-")[2])
-				fmt.Println(reduce_id)
+				//fmt.Println(reduce_id)
 				if err == nil {
 					m.Reduce_inputs[reduce_id] =append(m.Reduce_inputs[reduce_id], f)
 				}
@@ -125,9 +125,9 @@ func (m *Master) WorkerComplete(args *CompleteArgs, reply *CompleteReply) error 
 			}
 		}
 	}
-	fmt.Println("After Complete")
-	m.Print()
-	fmt.Println("......")
+	//fmt.Println("After Complete")
+	//m.Print()
+	//fmt.Println("......")
 	return nil
 }
 //
